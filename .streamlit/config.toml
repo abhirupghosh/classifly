@@ -3,7 +3,28 @@ primaryColor = "#F63366"
 backgroundColor = "#0E1117"
 secondaryBackgroundColor = "#31333F"
 textColor = "#FAFAFA"
-font = "Inter"
+font = "sans serif"
+base = "dark"
 
 [server]
 enableCORS = false
+
+[client]
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false
+
+[ui]
+hideTopBar = true
+
+[custom_css]
+css = """
+    .streamlit-expanderHeader {
+        font-size: 1.2rem !important;
+        font-weight: 600 !important;
+    }
+    .streamlit-expanderContent {
+        font-size: 1rem !important;
+    }
+"""
