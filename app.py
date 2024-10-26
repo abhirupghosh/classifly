@@ -12,7 +12,7 @@ def main():
     This function configures the page, applies custom CSS, renders the sidebar and main content,
     handles the analysis rerun if needed, and adds the category descriptions and testbench sections.
     """
-    st.set_page_config(page_title="Auto Classifier", layout="wide")
+    st.set_page_config(page_title="ClassiFly", layout="wide")
 
     # Load the Sentence Transformers model at startup
     if 'sentence_transformer_model' not in st.session_state:
