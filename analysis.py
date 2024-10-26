@@ -61,3 +61,17 @@ def analyze_columns():
                 ],
                 use_container_width=True
             )
+
+        # Create the dictionary for valid categories
+        category_predictor_dict = {}
+        for category in valid_categories.index:
+            category_data = st.session_state.df[st.session_state.df[st.session_state.target_column] == category]
+            category_samples = category_data.sample(n=min(len(category_data), max_samples))
+            
+            category_predictor_dict[category] = []
+            for _, row in category_samples.iterrows():
+                predictor_values = {col: row[col] for col in st.session_state.predictor_columns}
+                category_predictor_dict[category].append(predictor_values)
+        
+        # Store the dictionary in session state for later use
+        st.session_state.category_predictor_dict = category_predictor_dict

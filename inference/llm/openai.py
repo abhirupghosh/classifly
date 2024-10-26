@@ -5,12 +5,13 @@ import os
 import logging
 import backoff
 import openai
-dotenv.load_dotenv()
+
+dotenv.load_dotenv(override=True)
 
 # Initialize OpenAI client with Helicone integration
 openai_client = openai.OpenAI(
   api_key=os.environ.get("OPENAI_API_KEY"),
-  base_url="https://openai.helicone.ai",
+  base_url="https://oai.helicone.ai/v1",
   default_headers={
     "Helicone-Auth": f"Bearer {os.environ.get('HELICONE_API_KEY')}",
   },

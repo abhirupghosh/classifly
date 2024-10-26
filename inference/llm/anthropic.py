@@ -5,7 +5,7 @@ import os
 import logging
 import backoff
 
-dotenv.load_dotenv()
+dotenv.load_dotenv(override=True)
 
 # Initialize Anthropic client with Helicone integration
 anthropic_client = anthropic.Anthropic(
