@@ -82,6 +82,7 @@ The testbench feature 🧪 allows you to:
 - Pandas 🐼
 - OpenAI API key 🔑 (for GPT-4 access)
 - Anthropic API key 🔑 (for Claude access)
+- Helicone API key 🔑 (for LLM logging)
 
 ## Contributing 🤝
 
