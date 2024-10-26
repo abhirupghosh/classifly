@@ -3,6 +3,13 @@ import concurrent.futures
 from inference.prompts.GetTargetDescription import get_target_description
 
 def process_and_display_categories():
+    """
+    Process and display category descriptions using concurrent execution.
+    
+    This function checks for the presence of category data, creates expanders for each category,
+    and concurrently generates descriptions for all categories. It updates the UI with progress
+    and stores the generated descriptions in the session state.
+    """
     if 'category_predictor_dict' not in st.session_state:
         st.warning("Please run the analysis first to generate category data.")
         return
@@ -10,19 +17,25 @@ def process_and_display_categories():
     category_predictor_dict = st.session_state.category_predictor_dict
 
     st.header("Category Descriptions")
-    progress_bar = st.progress(0)
-    status_text = st.empty()
+    st.markdown("""
+    <style>
+    .stProgress .st-bo {
+        background-color: green;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    progress_bar = st.progress(0, text="Generating category descriptions...")
+
+    def update_progress(progress, text):
+        progress_bar.progress(progress, text=text)
 
     # Create expanders with empty placeholders for each category
     category_expanders = {}
     for category in category_predictor_dict:
         with st.expander(category):
-            category_expanders[category] = {
-                'description': st.empty(),
-                'reasoning': st.empty()
-            }
+            category_expanders[category] = st.empty()
 
-    total_categories = len(category_predictor_dict)
+    total_categories = len(category_predictor_dict.keys())
     processed_categories = 0
 
     # Initialize the category_descriptions dictionary
@@ -36,26 +49,34 @@ def process_and_display_categories():
             try:
                 reasoning, description = future.result()
                 
-                # Update the placeholders for this category
-                category_expanders[category]['description'].markdown(f"**Description:** {description}")
-                category_expanders[category]['reasoning'].markdown(f"**Reasoning:** {reasoning}")
+                # Update the placeholder for this category, using reasoning as tooltip
+                category_expanders[category].markdown(description, help=reasoning)
                 
                 # Add the description to the category_descriptions dictionary
                 category_descriptions[category] = description
                 
                 processed_categories += 1
                 progress = processed_categories / total_categories
-                progress_bar.progress(progress)
-                status_text.text(f"Processed {processed_categories} out of {total_categories} categories")
+                update_progress(progress, f"Processed {processed_categories} out of {total_categories} categories")
 
             except Exception as exc:
                 st.error(f"An error occurred while processing {category}: {exc}")
 
-    status_text.text("All categories processed!")
+    st.toast("Category descriptions generated!", icon="🔍")
 
     # Store the category_descriptions in the session state
     st.session_state.category_descriptions = category_descriptions
 
 def render_category_descriptions():
-    if st.button("Generate Category Descriptions"):
-        process_and_display_categories()
+    """
+    Render the category descriptions section in the Streamlit app.
+    
+    This function checks if category data is available and provides a button
+    to generate category descriptions. When clicked, it calls the
+    process_and_display_categories function to generate and display the descriptions.
+    """
+    if 'category_predictor_dict' in st.session_state:
+        if st.button("Generate Category Descriptions"):
+            process_and_display_categories()
+    else:
+        pass

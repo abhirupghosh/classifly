@@ -30,12 +30,22 @@ def render_sidebar():
                 help="This information will be used to improve the analysis of your data."
             )
             
+            # Choose the LLM provider
+            provider = st.selectbox(
+                "Choose the LLM provider:",
+                options=["anthropic", "openai"],
+                index=0,
+            )
+
             submit_button = st.form_submit_button("Apply Settings")
         
         if submit_button:
+            st.toast("Settings applied!", icon="🔧")
+
             st.session_state.samples_per_target = samples_per_target
             st.session_state.min_samples_per_target = min_samples_per_target
             st.session_state.additional_context = additional_context
+            st.session_state.provider = provider
             if st.session_state.get('analyze_button_clicked', False):
                 st.session_state.rerun_analysis = True
 

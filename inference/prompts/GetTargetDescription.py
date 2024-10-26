@@ -6,7 +6,9 @@ import re
 from inference.llm.call_llm import call_llm
 
 system_message = """
-You are a professional analyzer of predictors. Your job is to, given a target value (encoded in <target>...</target> tags) and a set of predictor values (encoded in <predictor_values>...</predictor_values> tags), generate a description of what might cause the predictors to belong to the target class. The goal is to create a description that will help us grasp the underlying logic of the target column.
+You are a professional analyzer of predictors. Your job is to, given a target value (encoded in <target>...</target> tags) and a set of predictor values (encoded in <predictor_values>...</predictor_values> tags), generate a description of what might cause the predictors to belong to the target class. 
+
+The goal is to create a description that will help us grasp the underlying logic of the target column. This description will be treated as a feature description for the target column. That is very important to note - never reference specific values in the description, instead create a general description that will apply to most values that belong to the target class.
 
 You must ensure the following:
 1. The description is clear, concise, and to the point. It cannot mention specific values, but rather should be general enough to apply to all values that belong to the target class.
@@ -19,7 +21,24 @@ You must ensure the following:
 Remember, you are being evaluated on the quality of your descriptions. You must follow the output format strictly - that is, return your thoughts in <reasoning>...</reasoning> tags, and the description in <description>...</description> tags.
 """
 
-def get_target_description(category_name, category_predictor_dict):
+def get_target_description(category_name, category_predictor_dict, provider="anthropic"):
+    """
+    Generate a description of the target column based on the category and its predictor values.
+
+    This function creates a prompt using the provided category name and its corresponding
+    predictor values. It then calls an LLM to analyze the data and return a general 
+    description of the target column along with the reasoning behind it.
+
+    Args:
+        category_name (str): The name of the target category.
+        category_predictor_dict (dict): A dictionary mapping category names to their predictor values.
+
+    Returns:
+        tuple: A tuple containing:
+            - reasoning (str): The LLM's explanation for the generated description.
+            - description (str): A general description of the target column.
+    """
+    
     valid_predictor_values = category_predictor_dict[category_name]
 
     user_message = f"""
@@ -35,7 +54,7 @@ def get_target_description(category_name, category_predictor_dict):
         {"role": "user", "content": user_message}
     ]
 
-    response = call_llm(system_message=system_message, messages=messages, max_tokens=2048, provider="anthropic")
+    response = call_llm(system_message=system_message, messages=messages, max_tokens=2048, provider=provider)
 
     reasoning = re.search(r"<reasoning>(.*?)</reasoning>", response, re.DOTALL).group(1)
     description = re.search(r"<description>(.*?)</description>", response, re.DOTALL).group(1)
