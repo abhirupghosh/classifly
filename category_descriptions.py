@@ -1,6 +1,21 @@
 import streamlit as st
 import concurrent.futures
 from inference.prompts.GetTargetDescription import get_target_description
+from rag.create_index import create_index
+import pandas as pd
+
+def create_faiss_indices(df, predictor_columns):
+    indices = {}
+    model = st.session_state.sentence_transformer_model
+    # Ensure the model is on CPU
+    model = model.cpu()
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_column = {executor.submit(create_index, df, column, model=model): column for column in predictor_columns}
+        for future in concurrent.futures.as_completed(future_to_column):
+            column = future_to_column[future]
+            index, _ = future.result()
+            indices[column] = index
+    return indices
 
 def process_and_display_categories():
     """
@@ -28,6 +43,13 @@ def process_and_display_categories():
 
     def update_progress(progress, text):
         progress_bar.progress(progress, text=text)
+
+    # Create FAISS indices for each predictor column
+    predictor_columns = st.session_state.predictor_columns
+    df = st.session_state.df
+    with st.spinner("Creating FAISS indices for predictor columns..."):
+        faiss_indices = create_faiss_indices(df, predictor_columns)
+    st.session_state.faiss_indices = faiss_indices
 
     # Create expanders with empty placeholders for each category
     category_expanders = {}

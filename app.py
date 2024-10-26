@@ -2,7 +2,8 @@ import streamlit as st
 from ui_components import render_sidebar, render_main_content
 from analysis import analyze_columns
 from category_descriptions import render_category_descriptions
-from testbench import add_testbench_to_app
+from testbench import render_testbench
+from sentence_transformers import SentenceTransformer
 
 def main():
     """
@@ -12,6 +13,10 @@ def main():
     handles the analysis rerun if needed, and adds the category descriptions and testbench sections.
     """
     st.set_page_config(page_title="Auto Classifier", layout="wide")
+
+    # Load the Sentence Transformers model at startup
+    if 'sentence_transformer_model' not in st.session_state:
+        st.session_state.sentence_transformer_model = SentenceTransformer('all-MiniLM-L6-v2')
 
     # Apply custom CSS
     st.markdown("""
@@ -44,8 +49,8 @@ def main():
     # Add the category descriptions section
     render_category_descriptions()
 
-    # Add the new testbench section
-    add_testbench_to_app()
+    # Always render the testbench
+    render_testbench()
 
 if __name__ == "__main__":
     main()
