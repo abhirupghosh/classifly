@@ -6,6 +6,13 @@ def render_sidebar():
         st.header("Analysis Settings")
         
         with st.form("analysis_settings"):
+            max_llm_samples = st.number_input(
+                "Max LLM samples",
+                min_value=1,
+                max_value=30,
+                value=st.session_state.get('max_llm_samples', 10),
+                help="Maximum number of samples to use for LLM analysis."
+            )
             samples_per_target = st.number_input(
                 "Samples per target",
                 min_value=1,
@@ -41,7 +48,7 @@ def render_sidebar():
         
         if submit_button:
             st.toast("Settings applied!", icon="🔧")
-
+            st.session_state.max_llm_samples = max_llm_samples
             st.session_state.samples_per_target = samples_per_target
             st.session_state.min_samples_per_target = min_samples_per_target
             st.session_state.additional_context = additional_context

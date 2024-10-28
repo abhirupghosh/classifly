@@ -2,6 +2,7 @@
 # The inputs are going to be a bunch of categories and their corresponding predictor values.
 # The output is going to be a description of the target column.
 
+import random
 import re
 from inference.llm.call_llm import call_llm
 
@@ -21,7 +22,7 @@ You must ensure the following:
 Remember, you are being evaluated on the quality of your descriptions. You must follow the output format strictly - that is, return your thoughts in <reasoning>...</reasoning> tags, and the description in <description>...</description> tags.
 """
 
-def get_target_description(category_name, category_predictor_dict, provider="anthropic"):
+def get_target_description(category_name, category_predictor_dict, provider="anthropic", max_samples=10):
     """
     Generate a description of the target column based on the category and its predictor values.
 
@@ -40,6 +41,12 @@ def get_target_description(category_name, category_predictor_dict, provider="ant
     """
     
     valid_predictor_values = category_predictor_dict[category_name]
+
+    # Randomly sample max_samples predictor values if max_samples is less than the number of valid predictor values
+    if max_samples < len(valid_predictor_values):
+        sampled_predictor_values = random.sample(valid_predictor_values, max_samples)
+    else:
+        sampled_predictor_values = valid_predictor_values
 
     user_message = f"""
     <target>
